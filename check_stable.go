@@ -2,7 +2,6 @@ package main
 
 import (
   "fmt"
-  "log"
   "os"
   "os/exec"
   "strings"
@@ -10,7 +9,7 @@ import (
   "crypto/sha1"
   "encoding/json"
   "io/ioutil"
-  "syscall"
+  //"syscall"
 )
 
 type Result struct {
@@ -23,7 +22,7 @@ type Result struct {
 
 func main() {
   args := os.Args
-  xcmd := args[1]
+  cmd := args[1]
   params := args[2:len(args)]
   var statefilesdir string;
   var result Result
@@ -39,27 +38,26 @@ func main() {
   os.MkdirAll(statefilesdir, 0755)
   statefile := filepath.Join(statefilesdir, sha1_hash)
 
-  cmd := exec.Command(xcmd, params).CombinedOutput()
+  output, err := exec.Command(cmd, params...).CombinedOutput()
 
-  if err := cmd.Start(); err != nil {
-    log.Fatalf("cmd.Start: %v")
-  }
+  //if err := cmd.Start(); err != nil {
+    //log.Fatalf("cmd.Start: %v")
+  //}
 
-  if err := cmd.Wait(); err != nil {
-    if exiterr, ok := err.(*exec.ExitError); ok {
+  //if err := cmd.Wait(); err != nil {
+    //if exiterr, ok := err.(*exec.ExitError); ok {
       // The program has exited with an exit code != 0
 
       // There is no plattform independent way to retrieve
       // the exit code, but the following will work on Unix
-      if status, ok := exiterr.Sys().(syscall.WaitStatus); ok {
-        log.Printf("Exit Status: %d", status.ExitStatus())
-      }
-    } else {
-      log.Fatalf("cmd.Wait: %v", err)
-    }
-  }
+      //if status, ok := exiterr.Sys().(syscall.WaitStatus); ok {
+        //log.Printf("Exit Status: %d", status.ExitStatus())
+      //}
+    //} else {
+      //log.Fatalf("cmd.Wait: %v", err)
+    //}
+  //}
 
-  output = err
   fmt.Printf("The date is %s\n", output)
   var errors = []string{
       "Return code of 127 is out of bounds - plugin may be missing",
@@ -80,7 +78,7 @@ func main() {
 
   raw, err := ioutil.ReadFile(statefile)
   if err != nil {
-    result = Result{string(output), 0}
+    result = Result{string(output), 0, 0}
     // error
   } else {
     json.Unmarshal(raw, &result)
@@ -92,8 +90,8 @@ func main() {
     fmt.Printf("no error write to %s\n", statefile)
     // if serial < max, print output, save output with serial++
     // else print error output
-    if record.serial > 2 {
-      
+    if result.Serial > 2 {
+      fmt.Printf("%s\n", output)
     }
   } else {
     // save output, 
