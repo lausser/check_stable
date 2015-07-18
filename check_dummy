@@ -1,0 +1,13 @@
+#! /bin/bash
+exitcode=$1
+shift
+output=$*
+
+rnd=$RANDOM
+if [ $rnd -gt 10000 ]; then
+printf "Return code of 254 is out of bounds\n"
+exit 3
+else
+printf "%s %d\n" "$output" $rnd
+exit $exitcode
+fi
