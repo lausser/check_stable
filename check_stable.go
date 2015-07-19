@@ -60,9 +60,15 @@ func initResultFile(args string) string {
 }
 
 func main() {
+  var params []string
   args := os.Args
+  if len(args) == 1 {
+    fmt.Printf("usage: check_stable <command>\n")
+    os.Exit(3)
+  } else if len(args) >= 3 {
+    params = args[2:len(args)]
+  }
   cmd := args[1]
-  params := args[2:len(args)]
   exitCode := 0
 
   resultFile := initResultFile(strings.Join(args, ""))
